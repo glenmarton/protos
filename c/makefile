@@ -1,3 +1,4 @@
+protos: protos.c
 
 .PHONY: clean
 clean:
