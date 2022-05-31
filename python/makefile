@@ -7,6 +7,10 @@ venv:
 	venv/bin/python3 -m pip install flake8
 	venv/bin/python3 -m pip install mypy
 
+.PHONY: clean
+clean:
+	rm -rf .mypy_cache protos/__pycache__ tests/__pycache__ venv
+
 .PHONY: lint
 lint: venv
 	./venv/bin/python -m mypy ./$(PROJ)
