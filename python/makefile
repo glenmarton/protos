@@ -1,3 +1,17 @@
+PROJ=protos
+
+venv:
+	python3 -m venv venv
+	venv/bin/python3 -m pip install --upgrade pip
+	venv/bin/python3 -m pip install --upgrade setuptools wheel
+	venv/bin/python3 -m pip install flake8
+	venv/bin/python3 -m pip install mypy
+
+.PHONY: lint
+lint: venv
+	./venv/bin/python -m mypy ./$(PROJ)
+	./venv/bin/python -m flake8 --max-line-length=83 ./$(PROJ)
+
 .PHONY: test
 test:
 	./protos.py lic.c
