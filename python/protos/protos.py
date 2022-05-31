@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from protos.eprint import eprint
 
 #
 #   f u n c t i o n s
@@ -27,13 +28,13 @@ def read_input(file):
           declaration=''
 
 
-def process_input(multi, line):
+def process_input(decl, line):
     if is_function_declaration(line):
-        multi = line
-    elif is_complete(multi) == False:
-        print (f'Building {multi}.')
-        multi += line
-    return multi
+        decl = line
+    elif decl != '':
+        print (f'Building {decl}.')
+        decl += line
+    return decl
 
 def is_function_declaration(line):
     return line[0].islower() and line.find(';') < 0
