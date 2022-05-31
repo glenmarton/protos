@@ -14,8 +14,8 @@ clean:
 .PHONY: lint
 lint: venv
 	./venv/bin/python -m mypy ./$(PROJ)
-	./venv/bin/python -m flake8 --max-line-length=83 ./$(PROJ)
+	./venv/bin/python -m flake8 --max-line-length=83 ./$(PROJ) ./tests
 
 .PHONY: test
-test:
-	./protos.py lic.c
+test: venv
+	./venv/bin/python3 -m unittest discover
