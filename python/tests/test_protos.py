@@ -1,6 +1,6 @@
 import unittest
-import sys
 
+from os import remove
 from datetime import datetime
 from protos.protos import convert_to_prototype
 from protos.protos import is_function_declaration
@@ -9,6 +9,8 @@ from protos.protos import process_input
 from protos.protos import change_file_extension
 from protos.protos import generate_list_of
 from protos.protos import new_file_boilerplate
+from protos.protos import header_build
+
 
 class TestProtos(unittest.TestCase):
 
@@ -125,7 +127,13 @@ class TestProtos(unittest.TestCase):
     def test_boilerplate_no_purpose_nor_filename(self):
         now = datetime.now()
         date = now.strftime("%Y-%m-%d")
-        expect = f'/* header.h				DATE: {date}\n * PURPOSE: Header file for header.h.\n */\n#ifndef __HEADER_H__\n#define __HEADER_H__\n\n'
+        expect = f'''/* header.h				DATE: {date}
+ * PURPOSE: Header file for header.h.
+ */
+#ifndef __HEADER_H__
+#define __HEADER_H__
+
+'''
         actual = new_file_boilerplate('')
         self.assertEqual(expect, actual)
 
@@ -137,6 +145,48 @@ class TestProtos(unittest.TestCase):
 
     def test_generate_list_of_with_protos(self):
         global_list = ['int add(int a, int b);', 'int sub(int a, int b);']
-        expect = '/* Global count = 2 */\nint add(int a, int b);\nint sub(int a, int b);\n'
+        expect = '''/* Global count = 2 */
+int add(int a, int b);
+int sub(int a, int b);
+'''
         actual = generate_list_of(global_list)
+        self.assertEqual(expect, actual)
+
+    def test_header_build_preexisting_hfile(self):
+        filename = 'exist.h'
+        with open(filename, 'w') as _file:
+            _file.write('''#ifndef __EXIST_H__
+#define __EXIST_H__
+typedef number_t float;
+/* Global count = 1 */
+float add(float a, float b);
+#endif /* __EXIST_H__ */
+''')
+
+        protos = ['number_t add (number_t a, number_t b);']
+        actual = header_build('', protos, filename)
+        expect = '''#ifndef __EXIST_H__
+#define __EXIST_H__
+typedef number_t float;
+/* Global count = 1 */
+number_t add (number_t a, number_t b);
+#endif /* __EXIST_H__ */'''
+        self.assertEqual(expect, actual)
+        remove(filename)
+
+    def test_header_build_hfile(self):
+        filename = 'not.h'
+        protos = ['float add (float a, float b);']
+        actual = header_build('Yeah!', protos, filename)
+        now = datetime.now()
+        date = now.strftime("%Y-%m-%d")
+        expect = f'''/* not.h				DATE: {date}
+ * PURPOSE: Yeah!
+ */
+#ifndef __NOT_H__
+#define __NOT_H__
+
+/* Global count = 1 */
+float add (float a, float b);
+#endif /* __NOT_H__ */'''
         self.assertEqual(expect, actual)
