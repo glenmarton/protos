@@ -16,22 +16,27 @@ class TestProtos(unittest.TestCase):
         expect = 'int doit (int a, int b, int c);'
 
         actual = convert_to_prototype('int doit(int a, int b, int c)')
-        self.assertEqual(expect, actual, 'Prototype is not correct for single line.')
+        msg = 'Prototype is not correct for single line.'
+        self.assertEqual(expect, actual, msg)
 
     def test_prototype_conversion_spaces_in_parenthesis(self):
         expect = 'int doit (int a, int b, int c);'
         actual = convert_to_prototype('int doit( int a, int b, int c )')
-        self.assertEqual(expect, actual, 'Prototype is not correct for single line.')
+        msg = 'Prototype is not correct for single line.'
+        self.assertEqual(expect, actual, msg)
 
     def test_prototype_conversion_brace_with_cpp_comment(self):
-        expect = 'int doit (int a, int b, int c);  // comment'
-        actual = convert_to_prototype('int doit (int a, int b, int c) { // comment')
-        self.assertEqual(expect, actual, 'Prototype is not correct for single line.')
+        expect = 'int doit (int a, int b, int c);  // coment'
+        actual = convert_to_prototype('int doit (int a, int b, int c) { // coment')
+        msg = 'Prototype is not correct for single line.'
+        self.assertEqual(expect, actual, msg)
 
     def test_prototype_conversion_with_c_comment(self):
         expect = 'int doit (int a, int b, int c); /* comment */'
-        actual = convert_to_prototype('int doit (int a, int b, int c) /* comment */')
-        self.assertEqual(expect, actual, 'Prototype is not correct for single line.')
+        declaration = 'int doit (int a, int b, int c) /* comment */'
+        actual = convert_to_prototype(declaration)
+        msg = 'Prototype is not correct for single line.'
+        self.assertEqual(expect, actual, msg)
 
     def test_function_declaration_valid(self):
         actual = is_function_declaration('int add(int a, int b)')
@@ -62,37 +67,41 @@ class TestProtos(unittest.TestCase):
         self.assertFalse(actual)
 
     def test_close_of_single_line_function_declaration(self):
-        actual = is_complete('void doit(int a)');
+        actual = is_complete('void doit(int a)')
         self.assertTrue(actual)
 
     def test_close_of_function_declaration(self):
-        actual = is_complete('void doit(int a');
+        actual = is_complete('void doit(int a')
         self.assertFalse(actual)
 
     def test_close_of_function_declaration_multiline_start(self):
-        actual = is_complete('void doit(int a');
+        actual = is_complete('void doit(int a')
         self.assertFalse(actual)
 
     def test_close_of_function_declaration_multiline_end(self):
-        actual = is_complete('	int a)');
+        actual = is_complete('	int a)')
         self.assertTrue(actual)
 
     def test_close_of_function_declaration_actually_a_call(self):
-        actual = is_complete('	doit (a);');
+        actual = is_complete('	doit (a);')
         self.assertFalse(actual)
 
     def test_read_input_singleline(self):
-        actual='unset'
-        line ='int process(int a, int b, int c, int d, int e, int f) {'
-        actual=process_input(actual, line)
+        actual = 'unset'
+        line = 'int process(int a, int b, int c, int d, int e, int f) {'
+        actual = process_input(actual, line)
 
-        expect='int process(int a, int b, int c, int d, int e, int f) {'
+        expect = 'int process(int a, int b, int c, int d, int e, int f) {'
         self.assertEqual(expect, actual)
 
     def test_read_input_multiline(self):
-        expect='int doit(int a, int b,\n    int c, int d,\n    int e, int f) {\n'
-        actual='unset'
-        lines = [ 'int doit(int a, int b,\n', '    int c, int d,\n', '    int e, int f) {\n' ]
+        expect = 'int doit(int a, int b,\n    int c, int d,\n    int e, int f) {\n'
+        actual = 'unset'
+        lines = [
+            'int doit(int a, int b,\n',
+            '    int c, int d,\n',
+            '    int e, int f) {\n'
+            ]
         for line in lines:
             actual = process_input(actual, line)
 
