@@ -10,6 +10,7 @@ from protos.protos import change_file_extension
 from protos.protos import generate_list_of
 from protos.protos import new_file_boilerplate
 from protos.protos import header_build
+from protos.protos import convert_filename_to_macro
 
 
 class TestProtos(unittest.TestCase):
@@ -189,4 +190,10 @@ number_t add (number_t a, number_t b);
 /* Global count = 1 */
 float add (float a, float b);
 #endif /* __NOT_H__ */'''
+        self.assertEqual(expect, actual)
+
+    def test_convert_name2macro(self):
+        filename = '../../src/myfile.c'
+        expect = '__MYFILE_C__'
+        actual = convert_filename_to_macro(filename)
         self.assertEqual(expect, actual)

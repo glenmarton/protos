@@ -96,6 +96,9 @@ def is_a_global(prototype):
 
 def convert_filename_to_macro(name):
     macro = name.upper()
+    i = name.rfind('/')
+    if i >= 0:
+        macro = macro[i+1:len(macro)]
     macro = macro.replace('.', '_')
     return f'__{macro}__'
 
