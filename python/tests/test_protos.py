@@ -135,7 +135,7 @@ class TestProtos(unittest.TestCase):
         now = datetime.now()
         date = now.strftime("%Y-%m-%d")
         expect = f'''/* header.h				DATE: {date}
- * PURPOSE: Header file for header.h.
+ * PURPOSE: Enter purpose here
  */
 #ifndef __HEADER_H__
 #define __HEADER_H__

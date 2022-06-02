@@ -116,7 +116,7 @@ def read_file_before_prototypes(filename):
 
 def new_file_boilerplate(purpose, macro='__HEADER_H__', filename='header.h'):
     if purpose == '':
-        purpose = f'Header file for {filename}.'
+        purpose = 'Enter purpose here'
     now = datetime.now()
     date = now.strftime("%Y-%m-%d")
     bp = f'/* {filename}				DATE: {date}\n * PURPOSE: {purpose}\n */\n'
