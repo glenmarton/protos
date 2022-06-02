@@ -125,6 +125,12 @@ class TestProtos(unittest.TestCase):
         actual = change_file_extension('', 'txt')
         self.assertEqual(expect, actual)
 
+    def test_change_extension_with_path(self):
+        filename = '../../src/file.c'
+        expect = '../../src/file.h'
+        actual = change_file_extension(filename, 'h')
+        self.assertEqual(expect, actual)
+
     def test_boilerplate_no_purpose_nor_filename(self):
         now = datetime.now()
         date = now.strftime("%Y-%m-%d")

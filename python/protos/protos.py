@@ -42,7 +42,7 @@ def read_input(file):
 
 
 def change_file_extension(filename, ext):
-    i = filename.find('.')
+    i = filename.rfind('.')
     newfile = filename[0:i + 1]
     newfile += ext
     return newfile
