@@ -20,8 +20,10 @@ def main():
 
     purpose = ''
     global_body = header_build(purpose, global_protos, hfile)
+    local_body = source_build(local_protos, cfile)
+
     write_file(global_body, hfile)
-    print(f'Local functions: {local_protos}\n')
+    write_file(local_body, cfile)
 
 
 ##
@@ -61,7 +63,24 @@ def header_build(purpose, protos, filename):
     return top_of_file + bottom_of_file
 
 
+def source_build(protos, filename):
+    contents = ''
+    read = True
+    with open(filename, "r") as _file:
+        for line in _file:
+            if line == ' * prototypes\n':
+                contents += build_prototype_section(protos)
+                read = False
+            elif read:
+                contents += line
+            elif line == '\n':
+                read = True
+
+    return contents
+
+
 def write_file(body, filename):
+    print(f'Writing file {filename}.')
     with open(filename, 'w') as _file:
         _file.write(body)
 
@@ -130,6 +149,14 @@ def generate_list_of(global_list):
     for prototype in global_list:
         body += (f'{prototype}\n')
     return body
+
+
+def build_prototype_section(protos):
+    contents = ' * prototypes\n */\n'
+    for prototype in protos:
+        contents += (f'{prototype}\n')
+    contents += '\n'
+    return contents
 
 
 ####
