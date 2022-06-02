@@ -11,6 +11,7 @@ from protos.protos import generate_list_of
 from protos.protos import new_file_boilerplate
 from protos.protos import header_build
 from protos.protos import convert_filename_to_macro
+from protos.protos import source_build
 
 
 class TestProtos(unittest.TestCase):
@@ -203,3 +204,49 @@ float add (float a, float b);
         expect = '__MYFILE_C__'
         actual = convert_filename_to_macro(filename)
         self.assertEqual(expect, actual)
+
+    def test_build_cfile(self):
+        filename = 'src.c'
+        with open(filename, 'w') as _file:
+            _file.write('''#include <stdio.h>
+
+/*
+ * prototypes
+ */
+int add(int a, int b);
+
+int main(void)
+{
+  float f = add(0.75, 1.25);
+  printf("sum=%f", f);
+  return 0;
+}
+
+static float add(float a, float b)
+{
+  return a + b;
+}
+''')
+        expect = '''#include <stdio.h>
+
+/*
+ * prototypes
+ */
+static float add(float a, float b);
+
+int main(void)
+{
+  float f = add(0.75, 1.25);
+  printf("sum=%f", f);
+  return 0;
+}
+
+static float add(float a, float b)
+{
+  return a + b;
+}
+'''
+        protos = ['static float add(float a, float b);']
+        actual = source_build(protos, filename)
+        self.assertEqual(expect, actual)
+        remove(filename)
