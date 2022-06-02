@@ -87,7 +87,7 @@ def convert_to_prototype(line):
         ln = ln.replace('(', ' (')
     ln = ln.replace('( ', '(')
     ln = ln.replace(' )', ')')
-    return ln.replace(')', ');')
+    return replace_last(ln, ')', ');')
 
 
 def is_a_global(prototype):
@@ -133,6 +133,12 @@ def generate_list_of(global_list):
 
 
 ####
+def replace_last(string, find, replace):
+    reversed = string[::-1]
+    replaced = reversed.replace(find[::-1], replace[::-1], 1)
+    return replaced[::-1]
+
+
 def is_function_declaration(line):
     return line[0].islower() and line.find(';') < 0
 
