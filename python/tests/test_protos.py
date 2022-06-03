@@ -12,6 +12,7 @@ from protos.protos import new_file_boilerplate
 from protos.protos import header_build
 from protos.protos import convert_filename_to_macro
 from protos.protos import source_build
+from protos.protos import get_purpose
 
 
 class TestProtos(unittest.TestCase):
@@ -132,17 +133,42 @@ class TestProtos(unittest.TestCase):
         actual = change_file_extension(filename, 'h')
         self.assertEqual(expect, actual)
 
+    def test_nopurpose(self):
+        args = ['./protos.py', 'myfile.c']
+        expect = 'Enter purpose here'
+        actual = get_purpose(args)
+        self.assertEqual(expect, actual)
+
+    def test_purposewithflagp(self):
+        args = ['./protos.py', '-p', 'I did this on purpose', 'myfile.c']
+        expect = 'I did this on purpose'
+        actual = get_purpose(args)
+        self.assertEqual(expect, actual)
+
     def test_boilerplate_no_purpose_nor_filename(self):
         now = datetime.now()
         date = now.strftime("%Y-%m-%d")
         expect = f'''/* header.h				DATE: {date}
- * PURPOSE: Enter purpose here
+ * PURPOSE: fill in purpose
  */
 #ifndef __HEADER_H__
 #define __HEADER_H__
 
 '''
         actual = new_file_boilerplate('')
+        self.assertEqual(expect, actual)
+
+    def test_boilerplate_with_purpose_nor_filename(self):
+        now = datetime.now()
+        date = now.strftime("%Y-%m-%d")
+        expect = f'''/* header.h				DATE: {date}
+ * PURPOSE: Process things on purpose.
+ */
+#ifndef __HEADER_H__
+#define __HEADER_H__
+
+'''
+        actual = new_file_boilerplate('Process things on purpose.')
         self.assertEqual(expect, actual)
 
     def test_generate_list_of_no_protos(self):

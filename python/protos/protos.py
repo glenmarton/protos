@@ -6,6 +6,7 @@ from os.path import exists
 
 #
 def main():
+    purpose = get_purpose(sys.argv)
     if len(sys.argv) > 1:
         cfile = sys.argv[1]
         print(f'Reading from {cfile}:')
@@ -18,7 +19,6 @@ def main():
         cfile = 'src.c'
         hfile = 'header.h'
 
-    purpose = ''
     global_body = header_build(purpose, global_protos, hfile)
     local_body = source_build(local_protos, cfile)
 
@@ -27,6 +27,16 @@ def main():
 
 
 ##
+def get_purpose(args):
+    nextone = False
+    for flag in args:
+        if nextone:
+            return flag
+        elif flag == '-p' or flag == '--purpose':
+            nextone = True
+    return 'Enter purpose here'
+
+
 def read_input(file):
     declaration = ''
     global_protos = []
@@ -135,7 +145,7 @@ def read_file_before_prototypes(filename):
 
 def new_file_boilerplate(purpose, macro='__HEADER_H__', filename='header.h'):
     if purpose == '':
-        purpose = 'Enter purpose here'
+        purpose = 'fill in purpose'
     now = datetime.now()
     date = now.strftime("%Y-%m-%d")
     bp = f'/* {filename}				DATE: {date}\n * PURPOSE: {purpose}\n */\n'
