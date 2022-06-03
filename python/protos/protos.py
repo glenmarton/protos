@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import sys
 from datetime import datetime
 from os.path import exists
@@ -6,21 +7,15 @@ from os.path import exists
 
 #
 def main():
-    purpose = get_purpose(sys.argv)
-    cfile = get_filename(sys.argv)
+    args = parse_args(sys.argv[1:])
+    cfile = args.source_file
+    hfile = change_file_extension(cfile, 'h')
 
-    if cfile:
-        print(f'Reading from {cfile}:')
-        with open(cfile, "r") as _file:
-            global_protos, local_protos = read_input(_file)
-        hfile = change_file_extension(cfile, 'h')
-    else:
-        print("Reading from STDIN:")
-        global_protos, local_protos = read_input(sys.stdin)
-        cfile = 'src.c'
-        hfile = 'header.h'
+    print(f'Reading from {cfile}:')
+    with open(cfile, "r") as _file:
+        global_protos, local_protos = read_input(_file)
 
-    global_body = header_build(purpose, global_protos, hfile)
+    global_body = header_build(args.purpose, global_protos, hfile)
     local_body = source_build(local_protos, cfile)
 
     write_file(global_body, hfile)
@@ -28,23 +23,12 @@ def main():
 
 
 ##
-def get_purpose(args):
-    nextone = False
-    for flag in args:
-        if nextone:
-            return flag
-        elif flag == '-p' or flag == '--purpose':
-            nextone = True
-    return 'Enter purpose here'
-
-
-def get_filename(args):
-    i = len(args)
-    filename = args[i - 1]
-    if exists(filename):
-        return filename
-    else:
-        return ''
+def parse_args(args):
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-p', '--purpose', required=False, default='fill in purpose',
+                    help='What source file is used for')
+    ap.add_argument('source_file', type=str, help='Source file to process')
+    return ap.parse_args(args)
 
 
 def read_input(file):

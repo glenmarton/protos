@@ -12,7 +12,7 @@ from protos.protos import new_file_boilerplate
 from protos.protos import header_build
 from protos.protos import convert_filename_to_macro
 from protos.protos import source_build
-from protos.protos import get_purpose
+from protos.protos import parse_args
 
 
 class TestProtos(unittest.TestCase):
@@ -133,17 +133,18 @@ class TestProtos(unittest.TestCase):
         actual = change_file_extension(filename, 'h')
         self.assertEqual(expect, actual)
 
-    def test_nopurpose(self):
-        args = ['./protos.py', 'myfile.c']
-        expect = 'Enter purpose here'
-        actual = get_purpose(args)
-        self.assertEqual(expect, actual)
+    def test_parse_args_fileonly(self):
+        args = ['myfile.c']
+        expect = 'myfile.c'
+        actual = parse_args(args)
+        self.assertEqual(actual.purpose, 'fill in purpose')
+        self.assertEqual(actual.source_file, expect)
 
-    def test_purposewithflagp(self):
-        args = ['./protos.py', '-p', 'I did this on purpose', 'myfile.c']
-        expect = 'I did this on purpose'
-        actual = get_purpose(args)
-        self.assertEqual(expect, actual)
+    def test_parse_args_purpose(self):
+        args = ['--purpose=To get help', 'myfile.c']
+        expect = 'To get help'
+        actual = parse_args(args)
+        self.assertEqual(actual.purpose, expect)
 
     def test_boilerplate_no_purpose_nor_filename(self):
         now = datetime.now()
