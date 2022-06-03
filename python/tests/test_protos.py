@@ -158,7 +158,7 @@ class TestProtos(unittest.TestCase):
         actual = new_file_boilerplate('')
         self.assertEqual(expect, actual)
 
-    def test_boilerplate_with_purpose_nor_filename(self):
+    def test_boilerplate_with_purpose_no_filename(self):
         now = datetime.now()
         date = now.strftime("%Y-%m-%d")
         expect = f'''/* header.h				DATE: {date}
@@ -169,6 +169,20 @@ class TestProtos(unittest.TestCase):
 
 '''
         actual = new_file_boilerplate('Process things on purpose.')
+        self.assertEqual(expect, actual)
+
+    def test_boilerplate_with_purpose_and_filename_with_path(self):
+        now = datetime.now()
+        date = now.strftime("%Y-%m-%d")
+        expect = f'''/* myfile.h				DATE: {date}
+ * PURPOSE: Process things on purpose.
+ */
+#ifndef __MYFILE_H__
+#define __MYFILE_H__
+
+'''
+        actual = new_file_boilerplate('Process things on purpose.', '__MYFILE_H__',
+                                      '/var/tmp/myfile.h')
         self.assertEqual(expect, actual)
 
     def test_generate_list_of_no_protos(self):

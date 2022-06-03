@@ -134,10 +134,8 @@ def is_a_global(prototype):
 
 
 def convert_filename_to_macro(name):
-    macro = name.upper()
-    i = name.rfind('/')
-    if i >= 0:
-        macro = macro[i+1:len(macro)]
+    macro = remove_path(name)
+    macro = macro.upper()
     macro = macro.replace('.', '_')
     return f'__{macro}__'
 
@@ -156,6 +154,7 @@ def read_file_before_prototypes(filename):
 def new_file_boilerplate(purpose, macro='__HEADER_H__', filename='header.h'):
     if purpose == '':
         purpose = 'fill in purpose'
+    filename = remove_path(filename)
     now = datetime.now()
     date = now.strftime("%Y-%m-%d")
     bp = f'/* {filename}				DATE: {date}\n * PURPOSE: {purpose}\n */\n'
@@ -184,6 +183,13 @@ def replace_last(string, find, replace):
     reversed = string[::-1]
     replaced = reversed.replace(find[::-1], replace[::-1], 1)
     return replaced[::-1]
+
+
+def remove_path(name):
+    i = name.rfind('/')
+    if i >= 0:
+        name = name[i+1:len(name)]
+    return name
 
 
 def is_function_declaration(line):
