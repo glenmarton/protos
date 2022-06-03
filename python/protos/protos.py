@@ -7,10 +7,11 @@ from os.path import exists
 #
 def main():
     purpose = get_purpose(sys.argv)
-    if len(sys.argv) > 1:
-        cfile = sys.argv[1]
+    cfile = get_filename(sys.argv)
+
+    if cfile:
         print(f'Reading from {cfile}:')
-        with open(sys.argv[1], "r") as _file:
+        with open(cfile, "r") as _file:
             global_protos, local_protos = read_input(_file)
         hfile = change_file_extension(cfile, 'h')
     else:
@@ -35,6 +36,15 @@ def get_purpose(args):
         elif flag == '-p' or flag == '--purpose':
             nextone = True
     return 'Enter purpose here'
+
+
+def get_filename(args):
+    i = len(args)
+    filename = args[i - 1]
+    if exists(filename):
+        return filename
+    else:
+        return ''
 
 
 def read_input(file):
