@@ -7,9 +7,7 @@ from os.path import exists
 
 #
 def main():
-    args = parse_args(sys.argv[1:])
-    cfile = args.source_file
-    hfile = change_file_extension(cfile, 'h')
+    cfile, hfile, purpose = parse_args(sys.argv[1:])
 
     print(f'Reading from {cfile}:')
     with open(cfile, "r") as _file:
@@ -25,10 +23,28 @@ def main():
 ##
 def parse_args(args):
     ap = argparse.ArgumentParser()
+    ap.add_argument('-H', '--header', required=False, default='',
+                    help='Alternate path to header files')
     ap.add_argument('-p', '--purpose', required=False, default='fill in purpose',
                     help='What source file is used for')
     ap.add_argument('source_file', type=str, help='Source file to process')
-    return ap.parse_args(args)
+    namespaces = ap.parse_args(args)
+
+    hfile  = translate_to_header_from(namespaces)
+    return namespaces.source_file, hfile, namespaces.purpose
+
+
+def change_file_extension(filename, ext):
+    i = filename.rfind('.')
+    newfile = filename[0:i + 1]
+    newfile += ext
+    return newfile
+
+
+def replace_path(path, filename):
+    if path[-1] != '/':
+        path += '/'
+    return path + remove_path(filename)
 
 
 def read_input(file):
@@ -47,13 +63,6 @@ def read_input(file):
     return global_protos, local_protos
 
 
-def change_file_extension(filename, ext):
-    i = filename.rfind('.')
-    newfile = filename[0:i + 1]
-    newfile += ext
-    return newfile
-
-
 def header_build(purpose, protos, filename):
     macro = convert_filename_to_macro(filename)
     if exists(filename):
@@ -62,7 +71,7 @@ def header_build(purpose, protos, filename):
         top_of_file = new_file_boilerplate(purpose, macro, filename)
 
     bottom_of_file = generate_list_of(protos)
-    bottom_of_file += f'#endif /* {macro} */'
+    bottom_of_file += f'#endif /* {macro} */\n'
 
     return top_of_file + bottom_of_file
 
@@ -90,6 +99,14 @@ def write_file(body, filename):
 
 
 ###
+def translate_to_header_from(namespaces):
+    hfile = change_file_extension(namespaces.source_file, 'h')
+    if namespaces.header != '':
+        hfile = replace_path(namespaces.header, hfile)
+
+    return hfile
+
+
 def process_input(decl, line):
     if is_function_declaration(line):
         decl = line
