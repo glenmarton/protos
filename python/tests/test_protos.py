@@ -137,14 +137,33 @@ class TestProtos(unittest.TestCase):
         args = ['myfile.c']
         expect = 'myfile.c'
         actual = parse_args(args)
-        self.assertEqual(actual.purpose, 'fill in purpose')
-        self.assertEqual(actual.source_file, expect)
+        self.assertEqual(actual['cfile'], expect)
+        self.assertEqual(actual['hfile'], 'myfile.h')
+        self.assertEqual(actual['purpose'], 'fill in purpose')
 
     def test_parse_args_purpose(self):
         args = ['--purpose=To get help', 'myfile.c']
         expect = 'To get help'
         actual = parse_args(args)
-        self.assertEqual(actual.purpose, expect)
+        self.assertEqual(actual['cfile'], 'myfile.c')
+        self.assertEqual(actual['hfile'], 'myfile.h')
+        self.assertEqual(actual['purpose'], expect)
+
+    def test_parse_args_header(self):
+        args = ['--header', 'include/', 'myfile.c']
+        expect = 'fill in purpose'
+        actual = parse_args(args)
+        self.assertEqual(actual['cfile'], 'myfile.c')
+        self.assertEqual(actual['hfile'], 'include/myfile.h')
+        self.assertEqual(actual['purpose'], expect)
+
+    def test_parse_args_H(self):
+        args = ['-Hinclude', 'myfile.c']
+        expect = 'fill in purpose'
+        actual = parse_args(args)
+        self.assertEqual(actual['cfile'], 'myfile.c')
+        self.assertEqual(actual['hfile'], 'include/myfile.h')
+        self.assertEqual(actual['purpose'], expect)
 
     def test_boilerplate_no_purpose_nor_filename(self):
         now = datetime.now()
