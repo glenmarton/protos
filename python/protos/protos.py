@@ -13,7 +13,7 @@ def main():
     with open(cfile, "r") as _file:
         global_protos, local_protos = read_input(_file)
 
-    global_body = header_build(args.purpose, global_protos, hfile)
+    global_body = header_build(purpose, global_protos, hfile)
     local_body = source_build(local_protos, cfile)
 
     write_file(global_body, hfile)
