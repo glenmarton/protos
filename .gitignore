@@ -1,0 +1,10 @@
+protos_tests
+bin
+include
+lib
+lib64
+pyvenv.cfg
+__pycache__
+src
+tests
+protos
