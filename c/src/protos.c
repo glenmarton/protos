@@ -7,7 +7,9 @@
  * prototypes
  */
 static void read_file (FILE* fin);
+static char* last3chars (char* line);
 static int exclude_this_char(char* exclude, char ch);
+static void filter_from_end(char *exclude, char* line);
 
 /*
  * global
@@ -37,7 +39,6 @@ static void read_file (FILE* fin)
 
 	while (fgets(line, sizeof(line), fin) != NULL) {
 		extract_from_line_to_declaration(line, declaration);
-fprintf(stderr, "+%d %s  - line='%s'\n", __LINE__, __FILE__, line);
 #ifdef NOT_YET
 		if (is_complete(declaration)) {
 			printf("Found declaration: '%s'\n", declaration);
@@ -62,12 +63,10 @@ void extract_from_line_to_declaration(char* line, char* decl)
 	}
 }
 
-char* last3chars (char* line)
+static char* last3chars (char* line)
 {
 	size_t len = strlen (line);
 	const size_t LAST_3_CHARS = 3;
-fprintf(stderr, "+%d %s  - line='%s', len=%lu, last3=%lu\n", __LINE__, __FILE__, line, len, len - LAST_3_CHARS);
-fprintf(stderr, "+%d %s  - front=%p, endptr=%p\n", __LINE__, __FILE__, line, &line[len]);
 
 	if (len > LAST_3_CHARS)
 		return &line[len - LAST_3_CHARS];
@@ -86,19 +85,16 @@ static int exclude_this_char(char* exclude, char ch)
 		}
 		exclude++;
 	}
-if(flag) fprintf(stderr, "%d - is an exclude char: '%c'\n", __LINE__, ch);
 	return flag;
 }
 
-void filter_from_end(char *exclude, char* line)
+static void filter_from_end(char *exclude, char* line)
 {
 	char* cp = line + strlen(line) - 1 /* NULL_C */;
 
 	while (cp >= line) {
 		if (exclude_this_char(exclude, *cp)) {
-fprintf(stderr, "+%d %s  - exclude point =%p:'%s'\n", __LINE__, __FILE__, cp, cp);
 			*cp = '\0';
-fprintf(stderr, "+%d %s  - exclude point =%p:'%s'\n", __LINE__, __FILE__, cp, cp);
 			cp--;
 		} else
 			break;
