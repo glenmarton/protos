@@ -1,5 +1,10 @@
-protos: protos.c
+PROJ=protos
+$(PROJ): $(PROJ).c
 
 .PHONY: clean
 clean:
-	rm -f protos
+	rm -f $(PROJ)
+
+.PHONY: test
+test:
+	$(MAKE) -f test.mak
