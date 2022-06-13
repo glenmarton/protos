@@ -6,5 +6,5 @@
 
 /* Global count = 2 */
 int main (int argc, char** argv);
-void extract_from_line_to_declaration(char* line, char* decl);
+int extract_from_line_to_prototype (char* line, char* decl);
 #endif /* __PROTOS_H__ */
