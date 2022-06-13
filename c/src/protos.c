@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "protos.h"
+#include "Seq.h"
 
 /*
  * prototypes
@@ -35,15 +36,21 @@ void mock(void) { read_file(stdin); }
 static void read_file (FILE* fin)
 {
 	char line[256];
-	char declaration[512] = "";
+	char prototype[512] = "";
+	Seq_T local_list = Seq_new(15);
+	Seq_T global_list = Seq_new(15);
 
 	while (fgets(line, sizeof(line), fin) != NULL) {
-		extract_from_line_to_declaration(line, declaration);
-#ifdef NOT_YET
-		if (is_complete(declaration)) {
-			printf("Found declaration: '%s'\n", declaration);
+		int found_one = extract_from_line_to_prototype(line, prototype);
+		if (found_one) {
+			printf("Found prototype: '%s'\n", prototype);
+			if (a_local_prototype(prototype)) {
+				Seq_addlo(local_list, prototype);
+			} else {
+				Seq_addlo(global_list, prototype);
+			}
+			*prototype = '\0';
 		}
-#endif /* NOT_YET */
 	}
 }
 

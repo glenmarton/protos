@@ -5,5 +5,5 @@ lib64
 objs
 pyvenv.cfg
 __pycache__
-tests
 protos
+.depend
