@@ -26,6 +26,8 @@ int main(int argc, char** argv)
 {
 	if (argc > 1) {
 		FILE* fin = fopen (argv[1], "r");
+		fprintf(stderr, "+%d %s - reading file %s\n", __LINE__,
+				__FILE__, argv[1]);
 		if (fin) {
 			read_file (fin);
 			fclose (fin);
@@ -44,6 +46,8 @@ static void read_file (FILE* fin)
 	char prototype[512] = "";
 	Seq_T local_list = Seq_new(15);
 	Seq_T global_list = Seq_new(15);
+
+	read_past_function_prototype_list (fin);
 
 	while (fgets(line, sizeof(line), fin) != NULL) {
 		int found_one = extract_from_line_to_prototype(line, prototype);
