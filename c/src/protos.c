@@ -1,13 +1,19 @@
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "conf.h"
+#include "file.h"
+#include "global.h"
+#include "local.h"
+#include "mem.h"
 #include "protos.h"
 #include "Seq.h"
 
 /*
  * prototypes
  */
-static void read_file (FILE* fin);
+static Seq_T* read_file (FILE* fin);
 static int a_local_prototype (char* prototype);
 static int is_function_declaration (char* line);
 static int has_end_of_function_decl (char* decl);
@@ -18,33 +24,55 @@ static int exclude_this_char (char* exclude, char ch);
 static int decl_continued_from_previous_line (char*decl);
 
 /*
+ * local
+ * variables
+ */
+static int testing = -1;
+
+
+/*
  * global
  * functions
  */
 #ifndef CPPUTESTING
 int main(int argc, char** argv)
 {
-	if (argc > 1) {
-		FILE* fin = fopen (argv[1], "r");
-		fprintf(stderr, "+%d %s - reading file %s\n", __LINE__,
-				__FILE__, argv[1]);
-		if (fin) {
-			read_file (fin);
-			fclose (fin);
-		}
-	} else {
-		read_file (stdin);
+	conf_t *conf = conf_new (argc, argv);
+	Seq_T* prototypes = NULL;
+	FILE* fin = NULL;
+
+	testing = conf->testing;
+	if (*conf->cfile == '\0') {
+		printf("Usage: %s C-filename\n", argv[0]);
+		return 1;
+	}
+	fin = fopen (conf->cfile, "r");
+
+	if (fin) {
+		fprintf(stderr, "Read file: %s, ", conf->cfile);
+
+		prototypes = read_file (fin);
+		fclose (fin);
+
+		fprintf (stderr, "Counts: global=%lu, local=%lu\n",
+				Seq_length (prototypes[0]),
+				Seq_length (prototypes[1]));
+
+		global_writeFile (conf, prototypes[0]);
+		local_writeFile (conf, prototypes[1]);
+		Seq_free (&prototypes[0]);
+		Seq_free (&prototypes[1]);
+		free (prototypes);
 	}
 }
 #else
 void mock(void) { read_file(stdin); }
 #endif /* CPPUTESTING */
-
-static void read_file (FILE* fin)
+static Seq_T* read_file (FILE* fin)
 {
 	char line[256];
 	char prototype[512] = "";
-	Seq_T local_list = Seq_new(15);
+	Seq_T local_list = Seq_new(65);
 	Seq_T global_list = Seq_new(15);
 
 	read_past_function_prototype_list (fin);
@@ -52,36 +80,33 @@ static void read_file (FILE* fin)
 	while (fgets(line, sizeof(line), fin) != NULL) {
 		int found_one = extract_from_line_to_prototype(line, prototype);
 		if (found_one) {
-			printf("Found prototype: '%s'\n", prototype);
+			if (testing)
+				printf("Found prototype: '%s'\n", prototype);
 			if (a_local_prototype(prototype)) {
-				Seq_addlo(local_list, prototype);
+				Seq_addhi(local_list, mem_stringDuplicate (prototype));
 			} else {
-				Seq_addlo(global_list, prototype);
+				Seq_addhi(global_list, mem_stringDuplicate (prototype));
 			}
 			*prototype = '\0';
 		}
 	}
-	fprintf (stderr, "+%d %s  Counts: local = %lu, global = %lu\n", __LINE__,
-			__FILE__, Seq_length(local_list),
-			Seq_length(global_list));
+	Seq_T * prototypes = (Seq_T*)malloc (sizeof(Seq_T) * 2);
+	prototypes[0] = global_list;
+	prototypes[1] = local_list;
+	/*
+	write_prototypes (stderr, "Global", global_list);
+	write_prototypes (stderr, "Local", local_list);
+	*/
+	return prototypes;
 }
 
 void read_past_function_prototype_list (FILE* fin)
 {
-	char line[256];
-	enum read_states {
-		STOP_READING, SCAN_FOR_BLANK_LINE, SCAN_FOR_PROTOTYPES
-	} keep_going = SCAN_FOR_PROTOTYPES;
+	char line[80];
 
-	while (keep_going && fgets(line, sizeof(line), fin) != NULL) {
-		if (keep_going == SCAN_FOR_PROTOTYPES &&
-				strstr (line, "* prototypes") != NULL ) {
-			keep_going = SCAN_FOR_BLANK_LINE;
-		} else if( keep_going == SCAN_FOR_BLANK_LINE &&
-				strstr (line, "") != NULL) {
-			keep_going = STOP_READING;
-		}
-	}
+	fgets(line, sizeof(line), fin);
+	file_scanFor (" * prototypes\n", fin);
+	file_scanFor ("\n", fin);
 }
 
 /*
